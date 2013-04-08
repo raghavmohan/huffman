@@ -8,8 +8,10 @@
 #include <map> 
 #include <fstream>
 #include <sstream>
+#define NUM_COLS 80
 
-
+std::string infile;
+std::string outfile;
 //string clean functions
 std::string &clean(std::string &s);
 std::string &ltrim(std::string &s);
