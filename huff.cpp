@@ -118,6 +118,7 @@ int main()
 		std::string word;
 		while( getline(stream, word, ' ') ){
 			if(word.length() > 0){
+        clean(word);
 				if(frequencies.find(word) == frequencies.end())
 					frequencies.insert(std::pair< std::string, int>(word, 1));
 				else

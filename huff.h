@@ -18,3 +18,36 @@ std::string &trim(std::string &s);
 void replace(std::string& pstring);
 
 
+void usage(bool exitFlag){
+	std::cout << "Usage: ./huff -i <inputfile>" << std::endl;
+	if(exitFlag)
+		exit(1);
+
+}
+
+void getoptions (int argc, char **argv) {
+	int c;
+	bool usageFlag = true;
+	while ((c = getopt (argc, argv, "v?hRs:i:o:h:")) != -1){
+		switch (c) {
+			case 'h':
+				usage(0);
+				break;
+			case 'i':
+				infile = std::string(optarg);
+				usageFlag = false;
+				break;
+			case 'o':
+				outfile = std::string(optarg);
+				break;
+			default:
+				break;
+		}
+	}
+	if(usageFlag)
+		usage(true);
+} 
+
+
+
+
