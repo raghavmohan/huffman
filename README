@@ -1,0 +1,31 @@
+------------------------------------------------------------------------------
+Name   : Raghav Mohan
+Email  : rmohan2@wisc.edu
+UWID   : 9057338981
+Program: Huffman Codes, P3
+Date   : 04/08/2013
+------------------------------------------------------------------------------
+
+Description
+------------------------------------------------------------------------------
+  This program computes the Huffmann Codes of strings for a given file.
+  The program is designed to work generally for any set of input files
+  however, as the input files indicate,  the focus of this project is
+  to compare Huffmann Encodings of Presidential Speeches from different
+  time periods. 
+
+
+Install + Run
+------------------------------------------------------------------------------
+  To install and make, type the following commands in your terminal
+    $ cd src
+    $ make clean
+    $ make
+  
+  To run, 
+    $ ./huff -i ../input/<filename>.txt
+
+  Note:
+    This assumes that the original directory structure was
+    was maintained when the file was untarred. Otherwise
+    one may need to specify the full path to input files.

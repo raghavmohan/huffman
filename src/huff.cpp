@@ -1,13 +1,15 @@
+/******************************************************************************
+ * Name   : Raghav Mohan
+ * Email  : rmohan2@wisc.edu
+ * UWID   : 9057338981
+ * Program: Huffman Codes, P3
+ * Date   : 04/08/2013
+ *****************************************************************************/
+
 #include "huff.h"
-
 using namespace std;
-const int UniqueSymbols = 1 << CHAR_BIT;
-//const char* SampleString = "this is an example for huffman encoding";
-
 typedef std::vector<bool> HuffCode;
-//typedef std::map<char, HuffCode> HuffCodeMap;
 typedef std::map<string, HuffCode> HuffCodeMap;
-
 class INode
 {
   public:
@@ -36,10 +38,7 @@ class InternalNode : public INode
 class LeafNode : public INode
 {
   public:
-    //const char c;
     string c;
-
-    //LeafNode(int f, char c) : INode(f), c(c) {}
     LeafNode(int f, string c) : INode(f), c(c) {}
 };
 
@@ -48,26 +47,13 @@ struct NodeCmp
   bool operator()(const INode* lhs, const INode* rhs) const { return lhs->f > rhs->f; }
 };
 
-//INode* BuildTree(const int (&frequencies)[UniqueSymbols])
 INode* BuildTree(map<string, int> (&frequencies))
 {
   std::priority_queue<INode*, std::vector<INode*>, NodeCmp> trees;
-  /*  
-      for (int i = 0; i < UniqueSymbols; ++i)
-      {
-      if(frequencies[i] != 0)
-      trees.push(new LeafNode(frequencies[i], (char)i));
-      }
-      */
-
   std::map<std::string, int>::iterator it1;
   for(it1 = frequencies.begin(); it1 != frequencies.end(); ++it1){
     trees.push(new LeafNode(it1->second, it1->first));
   }
-
-
-
-
   while (trees.size() > 1)
   {
     INode* childR = trees.top();
@@ -102,6 +88,7 @@ void GenerateCodes(const INode* node, const HuffCode& prefix, HuffCodeMap& outCo
 
 int main(int argc, char ** argv)
 {
+  //get input file, check error etc...
   getoptions(argc, argv);
   std::ifstream inputfile;
   inputfile.open(infile.c_str(),std::ios::in);
@@ -129,12 +116,15 @@ int main(int argc, char ** argv)
       }
     }
   }
+
+  //build huffmann tree from frequency map
   INode* root = BuildTree(frequencies);
 
   HuffCodeMap codes;
   GenerateCodes(root, HuffCode(), codes);
   delete root;
 
+  //print huffmann tree stats
   std::cout << "Word\t\t | Frequency\t | Huffman Code" << std::endl;
   for (int i = 0; i < NUM_COLS ; ++i)
     std::cout << "-";
@@ -168,8 +158,6 @@ void replace(std::string& pstring){
   }
 }
 
-
-
 std::string &clean(std::string &s) {
   trim(s);
   std::transform(s.begin(), s.end(), s.begin(), ::tolower);
@@ -189,3 +177,33 @@ std::string &rtrim(std::string &s) {
 std::string &trim(std::string &s) {
   return ltrim(rtrim(s));
 }
+
+
+void usage(bool exitFlag){
+  std::cout << "Usage: ./huff -i <inputfile>" << std::endl;
+  if(exitFlag)
+    exit(1);
+}
+
+void getoptions (int argc, char **argv) {
+  int c;
+  bool usageFlag = true;
+  while ((c = getopt (argc, argv, "v?hRs:i:o:h:")) != -1){
+    switch (c) {
+      case 'h':
+        usage(0);
+        break;
+      case 'i':
+        infile = std::string(optarg);
+        usageFlag = false;
+        break;
+      case 'o':
+        outfile = std::string(optarg);
+        break;
+      default:
+        break;
+    }
+  }
+  if(usageFlag)
+    usage(true);
+} 
