@@ -1,18 +1,12 @@
-#include <iostream>
-#include <queue>
-#include <map>
-#include <climits> // for CHAR_BIT
-#include <iterator>
-#include <algorithm>
-#include <string>
-#include <map> 
+#include "huff.h"
 
 using namespace std;
 const int UniqueSymbols = 1 << CHAR_BIT;
 //const char* SampleString = "this is an example for huffman encoding";
  
 typedef std::vector<bool> HuffCode;
-typedef std::map<char, HuffCode> HuffCodeMap;
+//typedef std::map<char, HuffCode> HuffCodeMap;
+typedef std::map<string, HuffCode> HuffCodeMap;
  
 class INode
 {
@@ -42,9 +36,11 @@ public:
 class LeafNode : public INode
 {
 public:
-    const char c;
- 
-    LeafNode(int f, char c) : INode(f), c(c) {}
+    //const char c;
+     string c;
+
+    //LeafNode(int f, char c) : INode(f), c(c) {}
+    LeafNode(int f, string c) : INode(f), c(c) {}
 };
  
 struct NodeCmp
@@ -52,15 +48,26 @@ struct NodeCmp
     bool operator()(const INode* lhs, const INode* rhs) const { return lhs->f > rhs->f; }
 };
  
-INode* BuildTree(const int (&frequencies)[UniqueSymbols])
+//INode* BuildTree(const int (&frequencies)[UniqueSymbols])
+INode* BuildTree(map<string, int> (&frequencies))
 {
     std::priority_queue<INode*, std::vector<INode*>, NodeCmp> trees;
- 
+   /*  
     for (int i = 0; i < UniqueSymbols; ++i)
     {
         if(frequencies[i] != 0)
             trees.push(new LeafNode(frequencies[i], (char)i));
     }
+    */
+
+	std::map<std::string, int>::iterator it1;
+	for(it1 = frequencies.begin(); it1 != frequencies.end(); ++it1){
+    trees.push(new LeafNode(it1->second, it1->first));
+	}
+
+
+
+
     while (trees.size() > 1)
     {
         INode* childR = trees.top();
@@ -96,7 +103,7 @@ void GenerateCodes(const INode* node, const HuffCode& prefix, HuffCodeMap& outCo
 int main()
 {
     // Build frequency table
-    int frequencies[UniqueSymbols] = {0};
+    //int frequencies[UniqueSymbols] = {0};
     
 
     //std::string SampleString;
@@ -106,9 +113,6 @@ int main()
 
     //const char* ptr = SampleString.c_str();
     const char* ptr = SampleString;
-    std::cout << "c_str : " << SampleString<< std::endl;
-    std::cout << "ptr : " << ptr << std::endl;
- 
     map<string, int> frequencies;
 		std::stringstream stream(SampleString);
 		std::string word;
@@ -142,4 +146,40 @@ int main()
         std::cout << std::endl;
     }
     return 0;
+}
+
+
+//string clean functions
+void replace(std::string& pstring){
+	unsigned int i;
+	for(i = 0; i< (pstring).length(); i++){
+		(pstring)[i] = tolower((pstring)[i]);
+
+		if(!((pstring).at(i)>= 97 &&  (pstring).at(i) <= 122)){
+			(pstring).erase(i, 1);
+			i--;
+		}
+	}
+}
+
+
+
+std::string &clean(std::string &s) {
+	trim(s);
+	std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+	return s;
+}
+
+std::string &ltrim(std::string &s) {
+        s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+        return s;
+}
+
+std::string &rtrim(std::string &s) {
+        s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+        return s;
+}
+
+std::string &trim(std::string &s) {
+        return ltrim(rtrim(s));
 }
