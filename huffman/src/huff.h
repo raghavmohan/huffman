@@ -17,8 +17,10 @@
 #define NUM_COLS 80
 
 //globals for input, output
-std::string infile;
+std::string infilename;
+std::string buildfilename;
 std::string outfilename;
+bool printSummary = false;
 bool outflag = false;
 
 //string clean functions

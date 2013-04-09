@@ -90,19 +90,21 @@ int main(int argc, char ** argv)
 {
   //get input file, check error etc...
   getoptions(argc, argv);
-  std::ifstream inputfile;
-  inputfile.open(infile.c_str(),std::ios::in);
-  if (!inputfile.is_open()){
-    std::cout << "Error Opening Input File" << std::endl;
+
+  //open buildfile
+  std::ifstream buildfile;
+  buildfile.open(buildfilename.c_str(),std::ios::in);
+  if (!buildfile.is_open()){
+    std::cout << "Error Opening Build File" << std::endl;
     return 1;
   }
 
-  // Build frequency table
+  // Build frequency table from original file
   map<string, int> frequencies;
-  while(!inputfile.eof())
+  while(!buildfile.eof())
   {
     std::string SampleString;
-    getline(inputfile,SampleString); 
+    getline(buildfile,SampleString); 
     std::stringstream stream(SampleString);
     std::string word;
     while( getline(stream, word, ' ') ){
@@ -116,16 +118,54 @@ int main(int argc, char ** argv)
       }
     }
   }
-
   //build huffmann tree from frequency map
   INode* root = BuildTree(frequencies);
 
   map<string, vector<bool> > codes;
   GenerateCodes(root, vector<bool>(), codes);
+
+
+  std::ifstream inputfile;
+  inputfile.open(infilename.c_str(),std::ios::in);
+  if (!inputfile.is_open()){
+    std::cout << "Error Opening Input File" << std::endl;
+    return 1;
+  }
+
+  // Build frequency table from original file
+  map<string, int> frequenciesInput;
+  while(!inputfile.eof())
+  {
+    std::string SampleString;
+    getline(inputfile,SampleString); 
+    std::stringstream stream(SampleString);
+    std::string word;
+    while( getline(stream, word, ' ') ){
+      if(word.length() > 0){
+        clean(word);
+        replace(word);
+
+        if(frequenciesInput.find(word) == frequenciesInput.end())
+          frequenciesInput.insert(std::pair< std::string, int>(word, 1));
+        else
+          frequenciesInput[word]++;	
+
+        if(frequencies.find(word) == frequencies.end())
+          frequencies.insert(std::pair< std::string, int>(word, 1));
+        else
+          frequencies[word]++;	
+      }
+    }
+  }
+
+  //build huffmann tree from frequency map
+  //INode* root = BuildTree(frequencies);
+  root = BuildTree(frequencies);
+
+  GenerateCodes(root, vector<bool>(), codes);
   delete root;
 
   //print huffmann tree stats
-
   ofstream outfile;
   if(outflag){
     outfile.open(outfilename.c_str());
@@ -136,41 +176,68 @@ int main(int argc, char ** argv)
 
     //outfile << "Word\t\t | Frequency\t | Huffman Code" << std::endl;
     for (int i = 0; i < NUM_COLS ; ++i)
-    ;//  outfile << "-";
+      ;//  outfile << "-";
     //outfile << std::endl;
 
 
-
-    for (map<string, vector<bool> >::const_iterator it = codes.begin(); it != codes.end(); ++it)
+    for (map<string, int >::const_iterator it = frequenciesInput.begin(); it != frequenciesInput.end(); ++it)
     {
-      if(it->first.length() >= 8)
-      ;//  outfile << it->first << "\t |";
-      else
-      ;//  outfile << it->first << "\t\t |";
-      ;//outfile << frequencies[it->first] << "\t\t |";
-      std::copy(it->second.begin(), it->second.end(),
-          std::ostream_iterator<bool>(outfile));
-      //outfile << std::endl;
+      map<string, vector<bool> >::const_iterator p1 = codes.find(it->first);
+      if(p1 != codes.end()){
+        std::copy(p1->second.begin(), p1->second.end(),
+            std::ostream_iterator<bool>(outfile));
+      }
     }
+    /*
+       for (map<string, vector<bool> >::const_iterator it = codes.begin(); it != codes.end(); ++it)
+       {
+       if(it->first.length() >= 8)
+       ;//  outfile << it->first << "\t |";
+       else
+       ;//  outfile << it->first << "\t\t |";
+       ;//outfile << frequencies[it->first] << "\t\t |";
+       std::copy(it->second.begin(), it->second.end(),
+       std::ostream_iterator<bool>(outfile));
+    //outfile << std::endl;
+    }
+    */
 
   }
-  else{
+
+  if(printSummary){
     std::cout << "Word\t\t | Frequency\t | Huffman Code" << std::endl;
     for (int i = 0; i < NUM_COLS ; ++i)
       std::cout << "-";
     std::cout << std::endl;
 
-    for (map<string, vector<bool> >::const_iterator it = codes.begin(); it != codes.end(); ++it)
+    for (map<string, int >::const_iterator it = frequenciesInput.begin(); it != frequenciesInput.end(); ++it)
     {
-      if(it->first.length() >= 8)
-        std::cout << it->first << "\t |";
-      else
-        std::cout << it->first << "\t\t |";
-      std::cout << frequencies[it->first] << "\t\t |";
-      std::copy(it->second.begin(), it->second.end(),
-          std::ostream_iterator<bool>(std::cout));
-      std::cout << std::endl;
+      map<string, vector<bool> >::const_iterator p1 = codes.find(it->first);
+      if(p1 != codes.end()){
+        if(p1->first.length() >= 8)
+          std::cout << p1->first << "\t |";
+        else
+          std::cout << p1->first << "\t\t |";
+        std::cout << frequenciesInput[p1->first] << "\t\t |";
+        std::copy(p1->second.begin(), p1->second.end(),std::ostream_iterator<bool>(std::cout));
+        std::cout << std::endl;
+      }
     }
+
+    /*
+
+       for (map<string, vector<bool> >::const_iterator it = codes.begin(); it != codes.end(); ++it)
+       {
+       if(it->first.length() >= 8)
+       std::cout << it->first << "\t |";
+       else
+       std::cout << it->first << "\t\t |";
+       std::cout << frequencies[it->first] << "\t\t |";
+       std::copy(it->second.begin(), it->second.end(),
+       std::ostream_iterator<bool>(std::cout));
+       std::cout << std::endl;
+       }
+       */
 
   }
 
@@ -213,7 +280,8 @@ std::string &trim(std::string &s) {
 
 
 void usage(bool exitFlag){
-  std::cout << "Usage: ./huff -i <inputfile>" << std::endl;
+  std::cout << "Usage: ./huff -b <buildcodefile> -i <inputfile> -o <outputfile, optional>" << std::endl;
+  std::cout << "Optional:\n\t -o <outputfile>\n\t -s : print summary" << std::endl;
   if(exitFlag)
     exit(1);
 }
@@ -221,13 +289,20 @@ void usage(bool exitFlag){
 void getoptions (int argc, char **argv) {
   int c;
   bool usageFlag = true;
-  while ((c = getopt (argc, argv, "v?hRs:i:o:h:")) != -1){
+  while ((c = getopt (argc, argv, "v?hRs:i:o:h:b:s:")) != -1){
     switch (c) {
       case 'h':
         usage(0);
         break;
+      case 'b':
+        buildfilename = std::string(optarg);
+        usageFlag = false;
+        break;
+      case 's':
+        printSummary = true;
+        break;
       case 'i':
-        infile = std::string(optarg);
+        infilename = std::string(optarg);
         usageFlag = false;
         break;
       case 'o':
