@@ -5,11 +5,8 @@
  * Program: Huffman Codes, P3
  * Date   : 04/08/2013
  *****************************************************************************/
-
 #include "huff.h"
 using namespace std;
-//typedef std::vector<bool> HuffCode;
-//typedef std::map<string, HuffCode> HuffCodeMap;
 class INode
 {
   public:
@@ -159,7 +156,7 @@ int main(int argc, char ** argv)
   }
 
   //build huffmann tree from frequency map
-  //INode* root = BuildTree(frequencies);
+  //might need to clear this, first, possible mem leak...
   root = BuildTree(frequencies);
 
   GenerateCodes(root, vector<bool>(), codes);
@@ -174,12 +171,6 @@ int main(int argc, char ** argv)
     }
 
 
-    //outfile << "Word\t\t | Frequency\t | Huffman Code" << std::endl;
-    for (int i = 0; i < NUM_COLS ; ++i)
-      ;//  outfile << "-";
-    //outfile << std::endl;
-
-
     for (map<string, int >::const_iterator it = frequenciesInput.begin(); it != frequenciesInput.end(); ++it)
     {
       map<string, vector<bool> >::const_iterator p1 = codes.find(it->first);
@@ -188,20 +179,6 @@ int main(int argc, char ** argv)
             std::ostream_iterator<bool>(outfile));
       }
     }
-    /*
-       for (map<string, vector<bool> >::const_iterator it = codes.begin(); it != codes.end(); ++it)
-       {
-       if(it->first.length() >= 8)
-       ;//  outfile << it->first << "\t |";
-       else
-       ;//  outfile << it->first << "\t\t |";
-       ;//outfile << frequencies[it->first] << "\t\t |";
-       std::copy(it->second.begin(), it->second.end(),
-       std::ostream_iterator<bool>(outfile));
-    //outfile << std::endl;
-    }
-    */
-
   }
 
   if(printSummary){
@@ -223,22 +200,6 @@ int main(int argc, char ** argv)
         std::cout << std::endl;
       }
     }
-
-    /*
-
-       for (map<string, vector<bool> >::const_iterator it = codes.begin(); it != codes.end(); ++it)
-       {
-       if(it->first.length() >= 8)
-       std::cout << it->first << "\t |";
-       else
-       std::cout << it->first << "\t\t |";
-       std::cout << frequencies[it->first] << "\t\t |";
-       std::copy(it->second.begin(), it->second.end(),
-       std::ostream_iterator<bool>(std::cout));
-       std::cout << std::endl;
-       }
-       */
-
   }
 
   return 0;
