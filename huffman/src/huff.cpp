@@ -8,8 +8,8 @@
 
 #include "huff.h"
 using namespace std;
-typedef std::vector<bool> HuffCode;
-typedef std::map<string, HuffCode> HuffCodeMap;
+//typedef std::vector<bool> HuffCode;
+//typedef std::map<string, HuffCode> HuffCodeMap;
 class INode
 {
   public:
@@ -68,7 +68,7 @@ INode* BuildTree(map<string, int> (&frequencies))
   return trees.top();
 }
 
-void GenerateCodes(const INode* node, const HuffCode& prefix, HuffCodeMap& outCodes)
+void GenerateCodes(const INode* node, const vector<bool>& prefix, map<string, vector<bool> >& outCodes)
 {
   if (const LeafNode* lf = dynamic_cast<const LeafNode*>(node))
   {
@@ -76,11 +76,11 @@ void GenerateCodes(const INode* node, const HuffCode& prefix, HuffCodeMap& outCo
   }
   else if (const InternalNode* in = dynamic_cast<const InternalNode*>(node))
   {
-    HuffCode leftPrefix = prefix;
+    vector<bool> leftPrefix = prefix;
     leftPrefix.push_back(false);
     GenerateCodes(in->left, leftPrefix, outCodes);
 
-    HuffCode rightPrefix = prefix;
+    vector<bool> rightPrefix = prefix;
     rightPrefix.push_back(true);
     GenerateCodes(in->right, rightPrefix, outCodes);
   }
@@ -120,27 +120,60 @@ int main(int argc, char ** argv)
   //build huffmann tree from frequency map
   INode* root = BuildTree(frequencies);
 
-  HuffCodeMap codes;
-  GenerateCodes(root, HuffCode(), codes);
+  map<string, vector<bool> > codes;
+  GenerateCodes(root, vector<bool>(), codes);
   delete root;
 
   //print huffmann tree stats
-  std::cout << "Word\t\t | Frequency\t | Huffman Code" << std::endl;
-  for (int i = 0; i < NUM_COLS ; ++i)
-    std::cout << "-";
-  std::cout << std::endl;
 
-  for (HuffCodeMap::const_iterator it = codes.begin(); it != codes.end(); ++it)
-  {
-    if(it->first.length() >= 8)
-      std::cout << it->first << "\t |";
-    else
-      std::cout << it->first << "\t\t |";
-    std::cout << frequencies[it->first] << "\t |";
-    std::copy(it->second.begin(), it->second.end(),
-        std::ostream_iterator<bool>(std::cout));
-    std::cout << std::endl;
+  ofstream outfile;
+  if(outflag){
+    outfile.open(outfilename.c_str());
+    if (!inputfile.is_open()){
+      std::cout << "Error Opening Input File" << std::endl;
+    }
+
+
+    //outfile << "Word\t\t | Frequency\t | Huffman Code" << std::endl;
+    for (int i = 0; i < NUM_COLS ; ++i)
+    ;//  outfile << "-";
+    //outfile << std::endl;
+
+
+
+    for (map<string, vector<bool> >::const_iterator it = codes.begin(); it != codes.end(); ++it)
+    {
+      if(it->first.length() >= 8)
+      ;//  outfile << it->first << "\t |";
+      else
+      ;//  outfile << it->first << "\t\t |";
+      ;//outfile << frequencies[it->first] << "\t\t |";
+      std::copy(it->second.begin(), it->second.end(),
+          std::ostream_iterator<bool>(outfile));
+      //outfile << std::endl;
+    }
+
   }
+  else{
+    std::cout << "Word\t\t | Frequency\t | Huffman Code" << std::endl;
+    for (int i = 0; i < NUM_COLS ; ++i)
+      std::cout << "-";
+    std::cout << std::endl;
+
+    for (map<string, vector<bool> >::const_iterator it = codes.begin(); it != codes.end(); ++it)
+    {
+      if(it->first.length() >= 8)
+        std::cout << it->first << "\t |";
+      else
+        std::cout << it->first << "\t\t |";
+      std::cout << frequencies[it->first] << "\t\t |";
+      std::copy(it->second.begin(), it->second.end(),
+          std::ostream_iterator<bool>(std::cout));
+      std::cout << std::endl;
+    }
+
+  }
+
   return 0;
 }
 
@@ -198,7 +231,8 @@ void getoptions (int argc, char **argv) {
         usageFlag = false;
         break;
       case 'o':
-        outfile = std::string(optarg);
+        outfilename = std::string(optarg);
+        outflag = true;
         break;
       default:
         break;

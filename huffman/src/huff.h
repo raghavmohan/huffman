@@ -18,7 +18,8 @@
 
 //globals for input, output
 std::string infile;
-std::string outfile;
+std::string outfilename;
+bool outflag = false;
 
 //string clean functions
 std::string &clean(std::string &s);
