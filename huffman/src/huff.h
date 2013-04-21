@@ -14,10 +14,11 @@
 #include <map> 
 #include <fstream>
 #include <sstream>
+#include <vector>
 #define NUM_COLS 80
-
+using namespace std;
 //globals for input, output
-std::string infilename;
+std::string inlistfilename;
 std::string buildfilename;
 std::string outfilename;
 bool printSummary = false;
@@ -34,3 +35,5 @@ void replace(std::string& pstring);
 //input/output, check errors, etc...
 void usage(bool exitFlag);
 void getoptions (int argc, char **argv);
+void getInputFiles(std::string inlistfilename, vector<string>& inputfiles);
+void addToFrequencies(std::string filename, map<string, int> & frequencies, map<string, int> & frequenciesInput);

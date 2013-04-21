@@ -98,6 +98,7 @@ int main(int argc, char ** argv)
 
   // Build frequency table from original file
   map<string, int> frequencies;
+  map<string, int> frequenciesInput;
   while(!buildfile.eof())
   {
     std::string SampleString;
@@ -110,50 +111,24 @@ int main(int argc, char ** argv)
         replace(word);
         if(frequencies.find(word) == frequencies.end())
           frequencies.insert(std::pair< std::string, int>(word, 1));
-        else
+        else{
           frequencies[word]++;	
+        }
       }
     }
   }
-  //build huffmann tree from frequency map
+  vector<string> inputfiles;
+  getInputFiles(inlistfilename, inputfiles);
+
+  for(int i = 0; i < (int)inputfiles.size(); ++i){
+    addToFrequencies(inputfiles[i], frequencies, frequenciesInput);
+  }
+
+   //build huffmann tree from frequency map
   INode* root = BuildTree(frequencies);
 
   map<string, vector<bool> > codes;
   GenerateCodes(root, vector<bool>(), codes);
-
-
-  std::ifstream inputfile;
-  inputfile.open(infilename.c_str(),std::ios::in);
-  if (!inputfile.is_open()){
-    std::cout << "Error Opening Input File" << std::endl;
-    return 1;
-  }
-
-  // Build frequency table from original file
-  map<string, int> frequenciesInput;
-  while(!inputfile.eof())
-  {
-    std::string SampleString;
-    getline(inputfile,SampleString); 
-    std::stringstream stream(SampleString);
-    std::string word;
-    while( getline(stream, word, ' ') ){
-      if(word.length() > 0){
-        clean(word);
-        replace(word);
-
-        if(frequenciesInput.find(word) == frequenciesInput.end())
-          frequenciesInput.insert(std::pair< std::string, int>(word, 1));
-        else
-          frequenciesInput[word]++;	
-
-        if(frequencies.find(word) == frequencies.end())
-          frequencies.insert(std::pair< std::string, int>(word, 1));
-        else
-          frequencies[word]++;	
-      }
-    }
-  }
 
   //build huffmann tree from frequency map
   //might need to clear this, first, possible mem leak...
@@ -166,9 +141,6 @@ int main(int argc, char ** argv)
   ofstream outfile;
   if(outflag){
     outfile.open(outfilename.c_str());
-    if (!inputfile.is_open()){
-      std::cout << "Error Opening Input File" << std::endl;
-    }
 
 
     for (map<string, int >::const_iterator it = frequenciesInput.begin(); it != frequenciesInput.end(); ++it)
@@ -240,8 +212,69 @@ std::string &trim(std::string &s) {
 }
 
 
+void getInputFiles(std::string inlistfilename, vector<string>& inputfiles){
+  std::ifstream inlistfile;
+  inlistfile.open(inlistfilename.c_str(),std::ios::in);
+  if (! inlistfile.is_open()){
+    std::cout << "Error Opening Build File" << std::endl;
+    return;
+  }
+
+  while(!inlistfile.eof())
+  {
+    std::string SampleString;
+    getline(inlistfile,SampleString); 
+    std::stringstream stream(SampleString);
+    std::string word;
+    while( getline(stream, word, ' ') ){
+      std::replace( word.begin(), word.end(), '*', '\0');
+      if(word.length() > 0){
+        inputfiles.push_back(word);
+      }
+    }
+  }
+}
+
+void addToFrequencies(std::string filename, map<string, int> & frequencies, map<string, int> & frequenciesInput){
+  std::ifstream infile;
+  infile.open(filename.c_str(),std::ios::in);
+  if (!infile.is_open()){
+    std::cout << "Error Opening Build File " << filename << std::endl;
+    return;
+  }
+
+  // Build frequency table from original file
+  while(!infile.eof())
+  {
+    std::string SampleString;
+    getline(infile,SampleString); 
+    std::stringstream stream(SampleString);
+    std::string word;
+    while( getline(stream, word, ' ') ){
+      clean(word);
+      
+      if(word.length() > 0){
+        if(frequencies.find(word) == frequencies.end())
+          frequencies.insert(std::pair< std::string, int>(word, 1));
+        else{
+          frequencies[word]++;	
+        }
+       if(frequenciesInput.find(word) == frequenciesInput.end())
+          frequenciesInput.insert(std::pair< std::string, int>(word, 1));
+        else{
+          frequenciesInput[word]++;	
+        }
+
+      }
+    }
+  }
+
+
+
+}
+
 void usage(bool exitFlag){
-  std::cout << "Usage: ./huff -b <buildcodefile> -i <inputfile> -o <outputfile, optional>" << std::endl;
+  std::cout << "Usage: ./huff -b <buildcodefile> -i <List File of Input files> -o <outputfile, optional>" << std::endl;
   std::cout << "Optional:\n\t -o <outputfile>\n\t -s : print summary" << std::endl;
   if(exitFlag)
     exit(1);
@@ -263,7 +296,7 @@ void getoptions (int argc, char **argv) {
         printSummary = true;
         break;
       case 'i':
-        infilename = std::string(optarg);
+        inlistfilename = std::string(optarg);
         usageFlag = false;
         break;
       case 'o':
