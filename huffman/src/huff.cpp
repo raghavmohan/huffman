@@ -89,6 +89,7 @@ int main(int argc, char ** argv)
   getoptions(argc, argv);
 
   //open buildfile
+  /*
   std::ifstream buildfile;
   buildfile.open(buildfilename.c_str(),std::ios::in);
   if (!buildfile.is_open()){
@@ -117,7 +118,22 @@ int main(int argc, char ** argv)
       }
     }
   }
+*/
+  vector<string> buildfiles;
+  getInputFiles(buildlistfilename, buildfiles);
+ // Build frequency table from original file
+  map<string, int> frequencies;
+  map<string, int> frequenciesDummy;
+  
+  for(int i = 0; i < (int)buildfiles.size(); ++i){
+    addToFrequencies(buildfiles[i], frequencies, frequenciesDummy);
+  }
+
+
+
+
   vector<string> inputfiles;
+  map<string, int> frequenciesInput;
   getInputFiles(inlistfilename, inputfiles);
 
   for(int i = 0; i < (int)inputfiles.size(); ++i){
@@ -274,7 +290,7 @@ void addToFrequencies(std::string filename, map<string, int> & frequencies, map<
 }
 
 void usage(bool exitFlag){
-  std::cout << "Usage: ./huff -b <buildcodefile> -i <List File of Input files> -o <outputfile, optional>" << std::endl;
+  std::cout << "Usage: ./huff -b <List of build file> -i <List File of Input files> -o <outputfile, optional>" << std::endl;
   std::cout << "Optional:\n\t -o <outputfile>\n\t -s : print summary" << std::endl;
   if(exitFlag)
     exit(1);
@@ -289,7 +305,7 @@ void getoptions (int argc, char **argv) {
         usage(0);
         break;
       case 'b':
-        buildfilename = std::string(optarg);
+        buildlistfilename = std::string(optarg);
         usageFlag = false;
         break;
       case 's':

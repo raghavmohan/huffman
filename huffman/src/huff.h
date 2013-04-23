@@ -19,7 +19,7 @@
 using namespace std;
 //globals for input, output
 std::string inlistfilename;
-std::string buildfilename;
+std::string buildlistfilename;
 std::string outfilename;
 bool printSummary = false;
 bool outflag = false;
