@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 LIST=../input/list/all.list
 UNIQUE=../input/uniquewords.txt
 #ls -d -1 $PWD/../input/speechdata/*.txt > ../input/list/all.list

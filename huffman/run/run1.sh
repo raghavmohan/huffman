@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 LIST=../input/list/
 UNIQUE=../input/uniquewords.txt
 RUN=../run/
@@ -39,7 +39,8 @@ for j in $(ls -d -1 ${LIST}exp/*.list); do
   mkdir ../output/$dname
   for i in $(ls -d -1 ${LIST}run/*.list); do
     a=$(basename $i)
-    echo "./huff -b $j -i $i -o ../output/$dname/${a/.list/}.huff"
-  #./huff -b $j -i $i -o ../output/$dname/$i.huff
+    #echo "./huff -b $j -i $i -o ../output/$dname/${a/.list/}.huff"
+    ./huff -b $j -i $i -o ../output/$dname/${a/.list/}.huff
   done
 done
+

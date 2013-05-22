@@ -15,7 +15,9 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <climits>
 #define NUM_COLS 80
+
 using namespace std;
 //globals for input, output
 std::string inlistfilename;
@@ -37,3 +39,4 @@ void usage(bool exitFlag);
 void getoptions (int argc, char **argv);
 void getInputFiles(std::string inlistfilename, vector<string>& inputfiles);
 void addToFrequencies(std::string filename, map<string, int> & frequencies, map<string, int> & frequenciesInput);
+void outputHuff(std::string filename, map<string, vector<bool> > & codes, string outfilename);
