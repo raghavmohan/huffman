@@ -23,7 +23,11 @@ Install + Run
     $ make
   
   To run, 
-    $ ./huff -i ../input/<filename>.txt
+    $ ./huff -b ../input/<filename>.txt -i ../input/<filename>.txt -o ../output/<filename>.huff
+    where 
+	-b is the Buildfile - the file from where the huffman code dictionary is built
+	-i is the input file - the file to encode
+	-o is the output code
 
   Note:
     This assumes that the original directory structure was
